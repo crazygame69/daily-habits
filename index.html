@@ -261,33 +261,49 @@
             min-width: 35px;
         }
 
-        /* ช่องความรู้สึกวันนี้ */
-        .mood-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-top: 6px;
-        }
-
+        /* ปรับช่องความรู้สึกให้ไม่ล้นจอ */
         .mood-selector {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 100%;
         }
 
         .mood-btn {
-            font-size: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             border: 2px solid transparent;
             background: #F1F5F9;
             border-radius: 12px;
-            padding: 6px 12px;
+            padding: 8px 2px;
             cursor: pointer;
             transition: all 0.2s;
+            min-width: 0;
+        }
+
+        .mood-btn .mood-emoji {
+            font-size: 1.4rem;
+            line-height: 1.2;
+        }
+
+        .mood-btn .mood-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
         }
 
         .mood-btn.selected {
             border-color: var(--primary);
             background: var(--primary-light);
-            transform: scale(1.1);
+            transform: scale(1.05);
+        }
+
+        .mood-btn.selected .mood-text {
+            color: var(--primary);
+            font-weight: 500;
         }
 
         .note-textarea {
@@ -398,18 +414,28 @@
             </div>
 
             <!-- ช่องความรู้สึกวันนี้ -->
-            <div class="mood-section">
-                <label style="font-weight: 500; font-size: 0.95rem;">💭 วันนี้รู้สึกอย่างไรบ้าง?</label>
-                <div class="mood-selector">
-                    <button class="mood-btn" data-mood="😆">😆 ดีมาก</button>
-                    <button class="mood-btn" data-mood="🙂">🙂 โอเค</button>
-                    <button class="mood-btn" data-mood="😴">😴 เพลีย</button>
-                    <button class="mood-btn" data-mood="😫">😫 เครียด</button>
-                    <button class="mood-btn" data-mood="🤒">🤒 ไม่สบาย</button>
+           <div class="mood-selector">
+                    <button class="mood-btn" data-mood="😆">
+                        <span class="mood-emoji">😆</span>
+                        <span class="mood-text">ดีมาก</span>
+                    </button>
+                    <button class="mood-btn" data-mood="🙂">
+                        <span class="mood-emoji">🙂</span>
+                        <span class="mood-text">โอเค</span>
+                    </button>
+                    <button class="mood-btn" data-mood="😴">
+                        <span class="mood-emoji">😴</span>
+                        <span class="mood-text">เพลีย</span>
+                    </button>
+                    <button class="mood-btn" data-mood="😫">
+                        <span class="mood-emoji">😫</span>
+                        <span class="mood-text">เครียด</span>
+                    </button>
+                    <button class="mood-btn" data-mood="🤒">
+                        <span class="mood-emoji">🤒</span>
+                        <span class="mood-text">ไม่สบาย</span>
+                    </button>
                 </div>
-                <textarea id="daily-note" class="note-textarea" placeholder="บันทึกความรู้สึก หรือเรื่องราวสั้นๆ ของวันนี้..."></textarea>
-            </div>
-        </div>
 
         <!-- หน้าที่ 2: แดชบอร์ดสรุปผล -->
         <div id="page-monthly" class="card hidden">
