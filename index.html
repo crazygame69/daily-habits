@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Habit Tracker - บันทึกเป้าหมายประจำวัน</title>
-    <!-- ใช้ Google Font Kanit เพื่อความสวยงาม -->
+    <title>Daily Habit & Wellness Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4F46E5;
             --primary-light: #EEF2FF;
             --success: #10B981;
+            --success-light: #ECFDF5;
+            --warning: #F59E0B;
             --bg: #F8FAFC;
             --card-bg: #FFFFFF;
             --text-main: #1E293B;
@@ -30,75 +31,106 @@
             color: var(--text-main);
             display: flex;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 20px 14px;
             min-height: 100vh;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            padding: 24px;
+            max-width: 540px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
-        header {
-            text-align: center;
+        /* เมนูแท็บสลับหน้า */
+        .tab-bar {
+            display: flex;
+            background: #E2E8F0;
+            border-radius: 14px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.4rem;
             color: var(--primary);
+            text-align: center;
         }
 
         header p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            text-align: center;
+            margin-top: 2px;
         }
 
-        /* วันที่ */
-        .date-picker-wrapper {
+        /* ส่วนเลือกวันที่ */
+        .date-picker-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: var(--primary-light);
-            padding: 10px 16px;
+            padding: 10px 14px;
             border-radius: 12px;
         }
 
-        .date-picker-wrapper label {
-            font-size: 0.9rem;
+        .date-picker-box label {
             font-weight: 500;
             color: var(--primary);
+            font-size: 0.9rem;
         }
 
-        .date-picker-wrapper input {
+        .date-picker-box input {
             border: none;
             background: transparent;
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--primary);
             outline: none;
             cursor: pointer;
         }
 
-        /* แถบ Progress */
-        .progress-section {
+        /* Progress Card */
+        .progress-box {
             background: #F1F5F9;
             border-radius: 14px;
-            padding: 16px;
+            padding: 14px 16px;
         }
 
         .progress-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
             margin-bottom: 8px;
         }
@@ -114,60 +146,58 @@
         .progress-bar-fill {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #4F46E5, #10B981);
+            background: linear-gradient(90deg, var(--primary), var(--success));
             border-radius: 999px;
             transition: width 0.3s ease;
         }
 
-        /* รายการ Habit */
-        .habit-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .habit-item {
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
+        /* รายการ Habit Card */
+        .habit-card {
             border: 1.5px solid var(--border);
             border-radius: 14px;
-            cursor: pointer;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             transition: all 0.2s ease;
-            user-select: none;
         }
 
-        .habit-item:hover {
-            border-color: #CBD5E1;
-            background-color: #F8FAFC;
-        }
-
-        .habit-item.checked {
+        .habit-card.passed {
             border-color: var(--success);
-            background-color: #ECFDF5;
+            background-color: var(--success-light);
+        }
+
+        .habit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .habit-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .habit-icon {
-            font-size: 1.5rem;
-            margin-right: 14px;
+            font-size: 1.4rem;
         }
 
-        .habit-content {
-            flex-grow: 1;
+        .habit-title-box {
+            display: flex;
+            flex-direction: column;
         }
 
         .habit-title {
-            font-size: 1rem;
             font-weight: 500;
-            color: var(--text-main);
-            transition: color 0.2s;
+            font-size: 0.95rem;
         }
 
-        .habit-item.checked .habit-title {
-            color: #065F46;
+        .habit-target-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
-        /* Checkbox แบบกำหนดเอง */
         .custom-checkbox {
             width: 24px;
             height: 24px;
@@ -176,175 +206,575 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .habit-item.checked .custom-checkbox {
+        .habit-card.passed .custom-checkbox {
             background: var(--success);
             border-color: var(--success);
-        }
-
-        .custom-checkbox::after {
-            content: '✔';
             color: white;
-            font-size: 14px;
-            display: none;
+            font-size: 13px;
         }
 
-        .habit-item.checked .custom-checkbox::after {
-            display: block;
+        .habit-card.passed .custom-checkbox::after {
+            content: '✔';
         }
 
-        /* ปุ่ม Reset */
-        .reset-btn {
-            background: transparent;
-            border: 1px dashed var(--text-muted);
+        /* Input ภายใน Habit */
+        .habit-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+        }
+
+        .habit-input-row span {
+            font-size: 0.8rem;
             color: var(--text-muted);
-            padding: 10px;
-            border-radius: 10px;
+        }
+
+        .habit-input-row input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            outline: none;
+            text-align: right;
+        }
+
+        .habit-input-row .unit {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            min-width: 35px;
+        }
+
+        /* ช่องความรู้สึกวันนี้ */
+        .mood-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 6px;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mood-btn {
+            font-size: 1.5rem;
+            border: 2px solid transparent;
+            background: #F1F5F9;
+            border-radius: 12px;
+            padding: 6px 12px;
             cursor: pointer;
-            font-size: 0.85rem;
             transition: all 0.2s;
         }
 
-        .reset-btn:hover {
-            background: #FEE2E2;
-            border-color: #EF4444;
-            color: #EF4444;
+        .mood-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .note-textarea {
+            width: 100%;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .note-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* แดชบอร์ดสรุปรายเดือน */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 4px 0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #F8FAFC;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+
+        .history-date {
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <header>
-            <h1>Daily Habits Tracker</h1>
-            <p>บันทึกวินัยเพื่อสุขภาพที่ดีขึ้นในทุกวัน</p>
-        </header>
-
-        <!-- วันที่ -->
-        <div class="date-picker-wrapper">
-            <label for="date-picker">📅 ประจำวันที่:</label>
-            <input type="date" id="date-picker">
+        <!-- แถบสลับหน้า -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-daily-btn">📝 บันทึกรายวัน</button>
+            <button class="tab-btn" id="tab-monthly-btn">📊 แดชบอร์ดสรุปผล</button>
         </div>
 
-        <!-- แถบ Progress ความสำเร็จ -->
-        <div class="progress-section">
-            <div class="progress-header">
-                <span>ความสำเร็จวันนี้</span>
-                <span id="progress-percent">0%</span>
+        <!-- หน้าที่ 1: บันทึกรายวัน -->
+        <div id="page-daily" class="card">
+            <header>
+                <h1>Daily Habit Tracker</h1>
+                <p>บันทึกผลตามจริงเพื่อสร้างวินัยที่ดี</p>
+            </header>
+
+            <div class="date-picker-box">
+                <label for="date-picker">📅 วันที่บันทึก:</label>
+                <input type="date" id="date-picker">
             </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progress-fill"></div>
+
+            <!-- สรุปความสำเร็จวันนี้ -->
+            <div class="progress-box">
+                <div class="progress-header">
+                    <span>เป้าหมายสำเร็จวันนี้</span>
+                    <span id="daily-progress-text">0/6 (0%)</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="daily-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- รายการเป้าหมาย -->
+            <div id="habit-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Habit รายการจะถูกแทรกที่นี่ -->
+            </div>
+
+            <!-- ช่องความรู้สึกวันนี้ -->
+            <div class="mood-section">
+                <label style="font-weight: 500; font-size: 0.95rem;">💭 วันนี้รู้สึกอย่างไรบ้าง?</label>
+                <div class="mood-selector">
+                    <button class="mood-btn" data-mood="😆">😆 ดีมาก</button>
+                    <button class="mood-btn" data-mood="🙂">🙂 โอเค</button>
+                    <button class="mood-btn" data-mood="😴">😴 เพลีย</button>
+                    <button class="mood-btn" data-mood="😫">😫 เครียด</button>
+                    <button class="mood-btn" data-mood="🤒">🤒 ไม่สบาย</button>
+                </div>
+                <textarea id="daily-note" class="note-textarea" placeholder="บันทึกความรู้สึก หรือเรื่องราวสั้นๆ ของวันนี้..."></textarea>
             </div>
         </div>
 
-        <!-- รายการเป้าหมาย -->
-        <div class="habit-list" id="habit-list">
-            <!-- Habit รายการต่างๆ จะถูกสร้างขึ้นที่นี่ผ่าน JS -->
-        </div>
+        <!-- หน้าที่ 2: แดชบอร์ดสรุปผล -->
+        <div id="page-monthly" class="card hidden">
+            <header>
+                <h1>Monthly Dashboard</h1>
+                <p>สถิติภาพรวมประจำเดือน</p>
+            </header>
 
-        <button class="reset-btn" id="reset-btn">ล้างข้อมูลของวันนี้</button>
+            <div class="date-picker-box">
+                <label for="month-picker">📅 เลือกเดือน:</label>
+                <input type="month" id="month-picker">
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-label">เป้าหมายสำเร็จเฉลี่ย</div>
+                    <div class="stat-value" id="stat-avg-goal">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">บันทึกไปแล้ว</div>
+                    <div class="stat-value" id="stat-logged-days">0 วัน</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">เวลานอนเฉลี่ย</div>
+                    <div class="stat-value" id="stat-avg-sleep">0 ชม.</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">ดื่มน้ำเฉลี่ย</div>
+                    <div class="stat-value" id="stat-avg-water">0 ลิตร</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; font-weight: 500; margin-top: 4px;">ประวัติรายวันในเดือนนี้</h3>
+            <div class="history-list" id="history-list">
+                <!-- ข้อมูลรายวันจะแสดงที่นี่ -->
+            </div>
+        </div>
     </div>
 
     <script>
-        // รายการเป้าหมาย 6 ข้อที่คุณระบุไว้
-        const HABITS = [
-            { id: 'sleep_8h', title: 'นอนครบ 8 ชั่วโมง', icon: '😴' },
-            { id: 'water_2l', title: 'ดื่มน้ำครบ 2 ลิตร', icon: '💧' },
-            { id: 'workout', title: 'ออกกำลังกาย', icon: '🏃' },
-            { id: 'protein', title: 'กินโปรตีนให้เพียงพอ', icon: '🥩' },
-            { id: 'sleep_early', title: 'เข้านอนก่อน 22.00 น.', icon: '🌙' },
-            { id: 'wake_5am', title: 'ตื่นนอนตอน 05.00 น.', icon: '⏰' }
+        // โครงสร้างนิสัย 6 อย่าง พร้อมเงื่อนไขตรวจสอบเป้าหมาย
+        const HABIT_CONFIGS = [
+            {
+                id: 'sleep_hours',
+                title: 'นอนครบ 8 ชั่วโมง',
+                icon: '😴',
+                type: 'number',
+                placeholder: 'เช่น 7.5',
+                unit: 'ชม.',
+                hint: 'เป้าหมาย: ≥ 8 ชม.',
+                checkPass: (val) => parseFloat(val) >= 8
+            },
+            {
+                id: 'water',
+                title: 'ดื่มน้ำ 2 ลิตร',
+                icon: '💧',
+                type: 'number',
+                placeholder: 'เช่น 2.2',
+                unit: 'ลิตร',
+                hint: 'เป้าหมาย: ≥ 2 ลิตร',
+                checkPass: (val) => parseFloat(val) >= 2
+            },
+            {
+                id: 'workout',
+                title: 'ออกกำลังกาย',
+                icon: '🏃',
+                type: 'number',
+                placeholder: 'เช่น 30',
+                unit: 'นาที',
+                hint: 'เป้าหมาย: ≥ 20 นาที หรือติ๊กผ่าน',
+                checkPass: (val) => parseFloat(val) >= 20
+            },
+            {
+                id: 'protein',
+                title: 'กินโปรตีน',
+                icon: '🥩',
+                type: 'number',
+                placeholder: 'เช่น 60',
+                unit: 'กรัม',
+                hint: 'เป้าหมาย: กรอกปริมาณโปรตีน',
+                checkPass: (val) => parseFloat(val) > 0
+            },
+            {
+                id: 'sleep_time',
+                title: 'เข้านอนก่อน 22.00 น.',
+                icon: '🌙',
+                type: 'time',
+                placeholder: '',
+                unit: 'เวลา',
+                hint: 'เป้าหมาย: ก่อนหรือตรง 22:00',
+                checkPass: (val) => {
+                    if (!val) return false;
+                    const [h, m] = val.split(':').map(Number);
+                    // เข้านอน 18:00 - 22:00 ถือว่าผ่าน
+                    return (h >= 18 && h < 22) || (h === 22 && m === 0);
+                }
+            },
+            {
+                id: 'wake_time',
+                title: 'ตื่น 05.00 น.',
+                icon: '⏰',
+                type: 'time',
+                placeholder: '',
+                unit: 'เวลา',
+                hint: 'เป้าหมาย: ไม่เกิน 05:00 น.',
+                checkPass: (val) => {
+                    if (!val) return false;
+                    const [h, m] = val.split(':').map(Number);
+                    // ตื่น 03:00 - 05:00 ถือว่าผ่าน
+                    return (h >= 3 && h < 5) || (h === 5 && m === 0);
+                }
+            }
         ];
 
+        // องค์ประกอบ DOM
         const datePicker = document.getElementById('date-picker');
-        const habitList = document.getElementById('habit-list');
-        const progressFill = document.getElementById('progress-fill');
-        const progressPercent = document.getElementById('progress-percent');
-        const resetBtn = document.getElementById('reset-btn');
+        const monthPicker = document.getElementById('month-picker');
+        const habitContainer = document.getElementById('habit-container');
+        const dailyProgressText = document.getElementById('daily-progress-text');
+        const dailyProgressFill = document.getElementById('daily-progress-fill');
+        const dailyNote = document.getElementById('daily-note');
+        const moodBtns = document.querySelectorAll('.mood-btn');
 
-        // ตั้งค่าวันปัจจุบัน (YYYY-MM-DD) ตาม Timezone ท้องถิ่น
+        const tabDailyBtn = document.getElementById('tab-daily-btn');
+        const tabMonthlyBtn = document.getElementById('tab-monthly-btn');
+        const pageDaily = document.getElementById('page-daily');
+        const pageMonthly = document.getElementById('page-monthly');
+
+        // ตั้งค่าวันปัจจุบัน (YYYY-MM-DD)
         const todayStr = new Date().toLocaleDateString('en-CA');
         datePicker.value = todayStr;
+        monthPicker.value = todayStr.substring(0, 7);
 
-        // ดึงข้อมูลจาก LocalStorage
-        function getStorageData() {
-            return JSON.parse(localStorage.getItem('habit_tracker_data') || '{}');
+        // LocalStorage Helpers
+        function getDB() {
+            return JSON.parse(localStorage.getItem('habit_tracker_db') || '{}');
         }
 
-        // บันทึกข้อมูลลง LocalStorage
-        function saveStorageData(data) {
-            localStorage.setItem('habit_tracker_data', JSON.stringify(data));
+        function saveDB(db) {
+            localStorage.setItem('habit_tracker_db', JSON.stringify(db));
         }
 
-        // เรนเดอร์รายการ Habit
-        function renderHabits() {
-            const selectedDate = datePicker.value;
-            const data = getStorageData();
-            const dateData = data[selectedDate] || {};
+        function getDayData(dateStr) {
+            const db = getDB();
+            return db[dateStr] || { values: {}, manualChecks: {}, mood: '', note: '' };
+        }
 
-            habitList.innerHTML = '';
-            let completedCount = 0;
+        function updateDayData(dateStr, partial) {
+            const db = getDB();
+            db[dateStr] = { ...getDayData(dateStr), ...partial };
+            saveDB(db);
+        }
 
-            HABITS.forEach(habit => {
-                const isChecked = !!dateData[habit.id];
-                if (isChecked) completedCount++;
+        // แท็บสลับหน้า
+        tabDailyBtn.addEventListener('click', () => {
+            tabDailyBtn.classList.add('active');
+            tabMonthlyBtn.classList.remove('active');
+            pageDaily.classList.remove('hidden');
+            pageMonthly.classList.add('hidden');
+            renderDaily();
+        });
 
-                const habitEl = document.createElement('div');
-                habitEl.className = `habit-item ${isChecked ? 'checked' : ''}`;
-                habitEl.innerHTML = `
-                    <div class="habit-icon">${habit.icon}</div>
-                    <div class="habit-content">
-                        <div class="habit-title">${habit.title}</div>
+        tabMonthlyBtn.addEventListener('click', () => {
+            tabMonthlyBtn.classList.add('active');
+            tabDailyBtn.classList.remove('active');
+            pageMonthly.classList.remove('hidden');
+            pageDaily.classList.add('hidden');
+            renderMonthly();
+        });
+
+        // เรนเดอร์หน้ารายวัน
+        function renderDaily() {
+            const curDate = datePicker.value;
+            const data = getDayData(curDate);
+            habitContainer.innerHTML = '';
+
+            let passCount = 0;
+
+            HABIT_CONFIGS.forEach(cfg => {
+                const val = data.values?.[cfg.id] || '';
+                const manualCheck = !!data.manualChecks?.[cfg.id];
+                const autoPass = cfg.checkPass(val);
+                const isPassed = autoPass || manualCheck;
+
+                if (isPassed) passCount++;
+
+                const card = document.createElement('div');
+                card.className = `habit-card ${isPassed ? 'passed' : ''}`;
+                card.innerHTML = `
+                    <div class="habit-header">
+                        <div class="habit-info">
+                            <span class="habit-icon">${cfg.icon}</span>
+                            <div class="habit-title-box">
+                                <span class="habit-title">${cfg.title}</span>
+                                <span class="habit-target-hint">${cfg.hint}</span>
+                            </div>
+                        </div>
+                        <div class="custom-checkbox" data-id="${cfg.id}"></div>
                     </div>
-                    <div class="custom-checkbox"></div>
+                    <div class="habit-input-row">
+                        <span>บันทึกจริง:</span>
+                        <input type="${cfg.type}" 
+                               data-id="${cfg.id}" 
+                               value="${val}" 
+                               placeholder="${cfg.placeholder}">
+                        <span class="unit">${cfg.unit}</span>
+                    </div>
                 `;
 
-                // จัดการเมื่อคลิกเป้าหมาย
-                habitEl.addEventListener('click', () => {
-                    toggleHabit(habit.id);
+                // จัดการคลิก Checkbox เพื่อติ๊กถูกเอง
+                const chk = card.querySelector('.custom-checkbox');
+                chk.addEventListener('click', () => {
+                    const current = getDayData(curDate);
+                    current.manualChecks = current.manualChecks || {};
+                    current.manualChecks[cfg.id] = !current.manualChecks[cfg.id];
+                    updateDayData(curDate, current);
+                    renderDaily();
                 });
 
-                habitList.appendChild(habitEl);
+                // จัดการเมื่อพิมพ์ตัวเลข/เวลา
+                const inp = card.querySelector('input');
+                inp.addEventListener('input', (e) => {
+                    const current = getDayData(curDate);
+                    current.values = current.values || {};
+                    current.values[cfg.id] = e.target.value;
+                    updateDayData(curDate, current);
+                    
+                    // ปรับสีและ Progress ทันทีโดยไม่ต้องโหลดใหม่ทั้งแผง
+                    const isNowPassed = cfg.checkPass(e.target.value) || !!current.manualChecks?.[cfg.id];
+                    if (isNowPassed) card.classList.add('passed');
+                    else card.classList.remove('passed');
+                    updateDailyProgress();
+                });
+
+                habitContainer.appendChild(card);
             });
 
             // อัปเดต Progress Bar
-            const percent = Math.round((completedCount / HABITS.length) * 100);
-            progressFill.style.width = `${percent}%`;
-            progressPercent.innerText = `${completedCount}/${HABITS.length} (${percent}%)`;
+            updateDailyProgress();
+
+            // อัปเดตช่องอารมณ์และโน้ต
+            dailyNote.value = data.note || '';
+            moodBtns.forEach(btn => {
+                if (btn.dataset.mood === data.mood) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
         }
 
-        // ฟังก์ชันสลับสถานะติ๊กถูก
-        function toggleHabit(habitId) {
-            const selectedDate = datePicker.value;
-            const data = getStorageData();
+        function updateDailyProgress() {
+            const curDate = datePicker.value;
+            const data = getDayData(curDate);
+            let passCount = 0;
 
-            if (!data[selectedDate]) {
-                data[selectedDate] = {};
-            }
+            HABIT_CONFIGS.forEach(cfg => {
+                const val = data.values?.[cfg.id] || '';
+                const manual = !!data.manualChecks?.[cfg.id];
+                if (cfg.checkPass(val) || manual) passCount++;
+            });
 
-            data[selectedDate][habitId] = !data[selectedDate][habitId];
-            saveStorageData(data);
-            renderHabits();
+            const percent = Math.round((passCount / HABIT_CONFIGS.length) * 100);
+            dailyProgressFill.style.width = `${percent}%`;
+            dailyProgressText.innerText = `${passCount}/${HABIT_CONFIGS.length} (${percent}%)`;
         }
 
-        // เมื่อเปลี่ยนวันที่ ให้แสดงข้อมูลของวันนั้น
-        datePicker.addEventListener('change', renderHabits);
+        // เปลี่ยนวันที่
+        datePicker.addEventListener('change', renderDaily);
 
-        // รีเซ็ตค่าของวันที่เลือก
-        resetBtn.addEventListener('click', () => {
-            if (confirm('คุณต้องการรีเซ็ตเป้าหมายของวันนี้ใช่หรือไม่?')) {
-                const selectedDate = datePicker.value;
-                const data = getStorageData();
-                delete data[selectedDate];
-                saveStorageData(data);
-                renderHabits();
-            }
+        // จัดการคลิกเลือกอิโมจิอารมณ์
+        moodBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const curDate = datePicker.value;
+                const mood = btn.dataset.mood;
+                const current = getDayData(curDate);
+                current.mood = (current.mood === mood) ? '' : mood;
+                updateDayData(curDate, current);
+                renderDaily();
+            });
         });
 
-        // เริ่มต้นเรนเดอร์ตอนเปิดเว็บ
-        renderHabits();
+        // จัดการพิมพ์ข้อความบันทึก
+        dailyNote.addEventListener('input', (e) => {
+            const curDate = datePicker.value;
+            const current = getDayData(curDate);
+            current.note = e.target.value;
+            updateDayData(curDate, current);
+        });
+
+        // เรนเดอร์แดชบอร์ดรายเดือน
+        function renderMonthly() {
+            const selectedMonth = monthPicker.value; // YYYY-MM
+            const db = getDB();
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+
+            let totalDaysLogged = 0;
+            let sumPercentages = 0;
+            let totalSleep = 0;
+            let sleepCount = 0;
+            let totalWater = 0;
+            let waterCount = 0;
+
+            // คัดกรองเฉพาะวันในเดือนที่เลือก
+            const datesInMonth = Object.keys(db)
+                .filter(d => d.startsWith(selectedMonth))
+                .sort((a, b) => b.localeCompare(a)); // เรียงวันใหม่สุดขึ้นก่อน
+
+            datesInMonth.forEach(dateStr => {
+                const day = db[dateStr];
+                let passed = 0;
+
+                HABIT_CONFIGS.forEach(cfg => {
+                    const val = day.values?.[cfg.id];
+                    const manual = day.manualChecks?.[cfg.id];
+                    if (cfg.checkPass(val) || manual) passed++;
+                });
+
+                if (day.values?.sleep_hours) {
+                    totalSleep += parseFloat(day.values.sleep_hours) || 0;
+                    sleepCount++;
+                }
+
+                if (day.values?.water) {
+                    totalWater += parseFloat(day.values.water) || 0;
+                    waterCount++;
+                }
+
+                const dayPercent = Math.round((passed / HABIT_CONFIGS.length) * 100);
+                sumPercentages += dayPercent;
+                totalDaysLogged++;
+
+                // รายการประวัติ
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span>${day.mood || '📝'}</span>
+                        <div>
+                            <span class="history-date">${dateStr}</span>
+                            ${day.note ? `<div style="font-size:0.75rem; color:var(--text-muted);">${day.note.substring(0,25)}...</div>` : ''}
+                        </div>
+                    </div>
+                    <span style="font-weight:600; color:${dayPercent >= 80 ? 'var(--success)' : 'var(--primary)'}">
+                        ${passed}/6 (${dayPercent}%)
+                    </span>
+                `;
+                historyList.appendChild(item);
+            });
+
+            if (totalDaysLogged === 0) {
+                historyList.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูลของเดือนนี้</div>';
+            }
+
+            // คำนวณค่าสถิติเฉลี่ย
+            document.getElementById('stat-logged-days').innerText = `${totalDaysLogged} วัน`;
+            document.getElementById('stat-avg-goal').innerText = totalDaysLogged > 0 
+                ? `${Math.round(sumPercentages / totalDaysLogged)}%` 
+                : '0%';
+            document.getElementById('stat-avg-sleep').innerText = sleepCount > 0 
+                ? `${(totalSleep / sleepCount).toFixed(1)} ชม.` 
+                : '0 ชม.';
+            document.getElementById('stat-avg-water').innerText = waterCount > 0 
+                ? `${(totalWater / waterCount).toFixed(1)} ล.` 
+                : '0 ลิตร';
+        }
+
+        monthPicker.addEventListener('change', renderMonthly);
+
+        // เริ่มต้นเรนเดอร์วันแรก
+        renderDaily();
     </script>
 </body>
 </html>
