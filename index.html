@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Habit & Wellness Tracker</title>
+
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5">
@@ -11,6 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Habits">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3209/3209265.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -261,7 +263,14 @@
             min-width: 35px;
         }
 
-        /* ปรับช่องความรู้สึกให้ไม่ล้นจอ */
+        /* ช่องความรู้สึกวันนี้ (ปรับใหม่ให้ไม่ล้นจอ) */
+        .mood-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 6px;
+        }
+
         .mood-selector {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -413,8 +422,10 @@
                 <!-- Habit รายการจะถูกแทรกที่นี่ -->
             </div>
 
-            <!-- ช่องความรู้สึกวันนี้ -->
-           <div class="mood-selector">
+            <!-- ช่องความรู้สึกวันนี้ (โครงสร้างแยก Span เพื่อขนาดที่พอดี) -->
+            <div class="mood-section">
+                <label style="font-weight: 500; font-size: 0.95rem;">💭 วันนี้รู้สึกอย่างไรบ้าง?</label>
+                <div class="mood-selector">
                     <button class="mood-btn" data-mood="😆">
                         <span class="mood-emoji">😆</span>
                         <span class="mood-text">ดีมาก</span>
@@ -436,6 +447,9 @@
                         <span class="mood-text">ไม่สบาย</span>
                     </button>
                 </div>
+                <textarea id="daily-note" class="note-textarea" placeholder="บันทึกความรู้สึก หรือเรื่องราวสั้นๆ ของวันนี้..."></textarea>
+            </div>
+        </div>
 
         <!-- หน้าที่ 2: แดชบอร์ดสรุปผล -->
         <div id="page-monthly" class="card hidden">
@@ -529,7 +543,6 @@
                 checkPass: (val) => {
                     if (!val) return false;
                     const [h, m] = val.split(':').map(Number);
-                    // เข้านอน 18:00 - 22:00 ถือว่าผ่าน
                     return (h >= 18 && h < 22) || (h === 22 && m === 0);
                 }
             },
@@ -544,7 +557,6 @@
                 checkPass: (val) => {
                     if (!val) return false;
                     const [h, m] = val.split(':').map(Number);
-                    // ตื่น 03:00 - 05:00 ถือว่าผ่าน
                     return (h >= 3 && h < 5) || (h === 5 && m === 0);
                 }
             }
@@ -645,7 +657,7 @@
                     </div>
                 `;
 
-                // จัดการคลิก Checkbox เพื่อติ๊กถูกเอง
+                // ติ๊ก Checkbox
                 const chk = card.querySelector('.custom-checkbox');
                 chk.addEventListener('click', () => {
                     const current = getDayData(curDate);
@@ -655,7 +667,7 @@
                     renderDaily();
                 });
 
-                // จัดการเมื่อพิมพ์ตัวเลข/เวลา
+                // กรอกข้อมูล Input
                 const inp = card.querySelector('input');
                 inp.addEventListener('input', (e) => {
                     const current = getDayData(curDate);
@@ -663,7 +675,6 @@
                     current.values[cfg.id] = e.target.value;
                     updateDayData(curDate, current);
                     
-                    // ปรับสีและ Progress ทันทีโดยไม่ต้องโหลดใหม่ทั้งแผง
                     const isNowPassed = cfg.checkPass(e.target.value) || !!current.manualChecks?.[cfg.id];
                     if (isNowPassed) card.classList.add('passed');
                     else card.classList.remove('passed');
@@ -673,10 +684,8 @@
                 habitContainer.appendChild(card);
             });
 
-            // อัปเดต Progress Bar
             updateDailyProgress();
 
-            // อัปเดตช่องอารมณ์และโน้ต
             dailyNote.value = data.note || '';
             moodBtns.forEach(btn => {
                 if (btn.dataset.mood === data.mood) {
@@ -703,10 +712,8 @@
             dailyProgressText.innerText = `${passCount}/${HABIT_CONFIGS.length} (${percent}%)`;
         }
 
-        // เปลี่ยนวันที่
         datePicker.addEventListener('change', renderDaily);
 
-        // จัดการคลิกเลือกอิโมจิอารมณ์
         moodBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const curDate = datePicker.value;
@@ -718,7 +725,6 @@
             });
         });
 
-        // จัดการพิมพ์ข้อความบันทึก
         dailyNote.addEventListener('input', (e) => {
             const curDate = datePicker.value;
             const current = getDayData(curDate);
@@ -728,7 +734,7 @@
 
         // เรนเดอร์แดชบอร์ดรายเดือน
         function renderMonthly() {
-            const selectedMonth = monthPicker.value; // YYYY-MM
+            const selectedMonth = monthPicker.value;
             const db = getDB();
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
@@ -740,10 +746,9 @@
             let totalWater = 0;
             let waterCount = 0;
 
-            // คัดกรองเฉพาะวันในเดือนที่เลือก
             const datesInMonth = Object.keys(db)
                 .filter(d => d.startsWith(selectedMonth))
-                .sort((a, b) => b.localeCompare(a)); // เรียงวันใหม่สุดขึ้นก่อน
+                .sort((a, b) => b.localeCompare(a));
 
             datesInMonth.forEach(dateStr => {
                 const day = db[dateStr];
@@ -769,7 +774,6 @@
                 sumPercentages += dayPercent;
                 totalDaysLogged++;
 
-                // รายการประวัติ
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.innerHTML = `
@@ -791,7 +795,6 @@
                 historyList.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูลของเดือนนี้</div>';
             }
 
-            // คำนวณค่าสถิติเฉลี่ย
             document.getElementById('stat-logged-days').innerText = `${totalDaysLogged} วัน`;
             document.getElementById('stat-avg-goal').innerText = totalDaysLogged > 0 
                 ? `${Math.round(sumPercentages / totalDaysLogged)}%` 
@@ -806,7 +809,6 @@
 
         monthPicker.addEventListener('change', renderMonthly);
 
-        // เริ่มต้นเรนเดอร์วันแรก
         renderDaily();
     </script>
 </body>
