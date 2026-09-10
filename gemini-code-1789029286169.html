@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Habit Tracker - บันทึกเป้าหมายประจำวัน</title>
+    <!-- ใช้ Google Font Kanit เพื่อความสวยงาม -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #EEF2FF;
+            --success: #10B981;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* วันที่ */
+        .date-picker-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary-light);
+            padding: 10px 16px;
+            border-radius: 12px;
+        }
+
+        .date-picker-wrapper label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .date-picker-wrapper input {
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--primary);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* แถบ Progress */
+        .progress-section {
+            background: #F1F5F9;
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #CBD5E1;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #4F46E5, #10B981);
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        /* รายการ Habit */
+        .habit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .habit-item:hover {
+            border-color: #CBD5E1;
+            background-color: #F8FAFC;
+        }
+
+        .habit-item.checked {
+            border-color: var(--success);
+            background-color: #ECFDF5;
+        }
+
+        .habit-icon {
+            font-size: 1.5rem;
+            margin-right: 14px;
+        }
+
+        .habit-content {
+            flex-grow: 1;
+        }
+
+        .habit-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: color 0.2s;
+        }
+
+        .habit-item.checked .habit-title {
+            color: #065F46;
+        }
+
+        /* Checkbox แบบกำหนดเอง */
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #CBD5E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .habit-item.checked .custom-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .custom-checkbox::after {
+            content: '✔';
+            color: white;
+            font-size: 14px;
+            display: none;
+        }
+
+        .habit-item.checked .custom-checkbox::after {
+            display: block;
+        }
+
+        /* ปุ่ม Reset */
+        .reset-btn {
+            background: transparent;
+            border: 1px dashed var(--text-muted);
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #FEE2E2;
+            border-color: #EF4444;
+            color: #EF4444;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Daily Habits Tracker</h1>
+            <p>บันทึกวินัยเพื่อสุขภาพที่ดีขึ้นในทุกวัน</p>
+        </header>
+
+        <!-- วันที่ -->
+        <div class="date-picker-wrapper">
+            <label for="date-picker">📅 ประจำวันที่:</label>
+            <input type="date" id="date-picker">
+        </div>
+
+        <!-- แถบ Progress ความสำเร็จ -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span>ความสำเร็จวันนี้</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- รายการเป้าหมาย -->
+        <div class="habit-list" id="habit-list">
+            <!-- Habit รายการต่างๆ จะถูกสร้างขึ้นที่นี่ผ่าน JS -->
+        </div>
+
+        <button class="reset-btn" id="reset-btn">ล้างข้อมูลของวันนี้</button>
+    </div>
+
+    <script>
+        // รายการเป้าหมาย 6 ข้อที่คุณระบุไว้
+        const HABITS = [
+            { id: 'sleep_8h', title: 'นอนครบ 8 ชั่วโมง', icon: '😴' },
+            { id: 'water_2l', title: 'ดื่มน้ำครบ 2 ลิตร', icon: '💧' },
+            { id: 'workout', title: 'ออกกำลังกาย', icon: '🏃' },
+            { id: 'protein', title: 'กินโปรตีนให้เพียงพอ', icon: '🥩' },
+            { id: 'sleep_early', title: 'เข้านอนก่อน 22.00 น.', icon: '🌙' },
+            { id: 'wake_5am', title: 'ตื่นนอนตอน 05.00 น.', icon: '⏰' }
+        ];
+
+        const datePicker = document.getElementById('date-picker');
+        const habitList = document.getElementById('habit-list');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // ตั้งค่าวันปัจจุบัน (YYYY-MM-DD) ตาม Timezone ท้องถิ่น
+        const todayStr = new Date().toLocaleDateString('en-CA');
+        datePicker.value = todayStr;
+
+        // ดึงข้อมูลจาก LocalStorage
+        function getStorageData() {
+            return JSON.parse(localStorage.getItem('habit_tracker_data') || '{}');
+        }
+
+        // บันทึกข้อมูลลง LocalStorage
+        function saveStorageData(data) {
+            localStorage.setItem('habit_tracker_data', JSON.stringify(data));
+        }
+
+        // เรนเดอร์รายการ Habit
+        function renderHabits() {
+            const selectedDate = datePicker.value;
+            const data = getStorageData();
+            const dateData = data[selectedDate] || {};
+
+            habitList.innerHTML = '';
+            let completedCount = 0;
+
+            HABITS.forEach(habit => {
+                const isChecked = !!dateData[habit.id];
+                if (isChecked) completedCount++;
+
+                const habitEl = document.createElement('div');
+                habitEl.className = `habit-item ${isChecked ? 'checked' : ''}`;
+                habitEl.innerHTML = `
+                    <div class="habit-icon">${habit.icon}</div>
+                    <div class="habit-content">
+                        <div class="habit-title">${habit.title}</div>
+                    </div>
+                    <div class="custom-checkbox"></div>
+                `;
+
+                // จัดการเมื่อคลิกเป้าหมาย
+                habitEl.addEventListener('click', () => {
+                    toggleHabit(habit.id);
+                });
+
+                habitList.appendChild(habitEl);
+            });
+
+            // อัปเดต Progress Bar
+            const percent = Math.round((completedCount / HABITS.length) * 100);
+            progressFill.style.width = `${percent}%`;
+            progressPercent.innerText = `${completedCount}/${HABITS.length} (${percent}%)`;
+        }
+
+        // ฟังก์ชันสลับสถานะติ๊กถูก
+        function toggleHabit(habitId) {
+            const selectedDate = datePicker.value;
+            const data = getStorageData();
+
+            if (!data[selectedDate]) {
+                data[selectedDate] = {};
+            }
+
+            data[selectedDate][habitId] = !data[selectedDate][habitId];
+            saveStorageData(data);
+            renderHabits();
+        }
+
+        // เมื่อเปลี่ยนวันที่ ให้แสดงข้อมูลของวันนั้น
+        datePicker.addEventListener('change', renderHabits);
+
+        // รีเซ็ตค่าของวันที่เลือก
+        resetBtn.addEventListener('click', () => {
+            if (confirm('คุณต้องการรีเซ็ตเป้าหมายของวันนี้ใช่หรือไม่?')) {
+                const selectedDate = datePicker.value;
+                const data = getStorageData();
+                delete data[selectedDate];
+                saveStorageData(data);
+                renderHabits();
+            }
+        });
+
+        // เริ่มต้นเรนเดอร์ตอนเปิดเว็บ
+        renderHabits();
+    </script>
+</body>
+</html>
