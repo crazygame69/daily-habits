@@ -260,10 +260,10 @@
         .habit-input-row .unit {
             font-size: 0.8rem;
             color: var(--text-muted);
-            min-width: 35px;
+            min-width: 40px;
         }
 
-        /* ช่องความรู้สึกวันนี้ (ปรับใหม่ให้ไม่ล้นจอ) */
+        /* ช่องความรู้สึกวันนี้ */
         .mood-section {
             display: flex;
             flex-direction: column;
@@ -346,7 +346,7 @@
         }
 
         .stat-value {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--primary);
             margin: 4px 0;
@@ -410,19 +410,19 @@
             <div class="progress-box">
                 <div class="progress-header">
                     <span>เป้าหมายสำเร็จวันนี้</span>
-                    <span id="daily-progress-text">0/6 (0%)</span>
+                    <span id="daily-progress-text">0/7 (0%)</span>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" id="daily-progress-fill"></div>
                 </div>
             </div>
 
-            <!-- รายการเป้าหมาย -->
+            <!-- รายการเป้าหมาย 7 ข้อ -->
             <div id="habit-container" style="display: flex; flex-direction: column; gap: 10px;">
                 <!-- Habit รายการจะถูกแทรกที่นี่ -->
             </div>
 
-            <!-- ช่องความรู้สึกวันนี้ (โครงสร้างแยก Span เพื่อขนาดที่พอดี) -->
+            <!-- ช่องความรู้สึกวันนี้ -->
             <div class="mood-section">
                 <label style="font-weight: 500; font-size: 0.95rem;">💭 วันนี้รู้สึกอย่างไรบ้าง?</label>
                 <div class="mood-selector">
@@ -480,6 +480,10 @@
                     <div class="stat-label">ดื่มน้ำเฉลี่ย</div>
                     <div class="stat-value" id="stat-avg-water">0 ลิตร</div>
                 </div>
+                <div class="stat-box" style="grid-column: span 2;">
+                    <div class="stat-label">แคลอรีเฉลี่ยต่อวัน</div>
+                    <div class="stat-value" id="stat-avg-calories">0 kcal</div>
+                </div>
             </div>
 
             <h3 style="font-size: 1rem; font-weight: 500; margin-top: 4px;">ประวัติรายวันในเดือนนี้</h3>
@@ -490,7 +494,7 @@
     </div>
 
     <script>
-        // โครงสร้างนิสัย 6 อย่าง พร้อมเงื่อนไขตรวจสอบเป้าหมาย
+        // โครงสร้างนิสัย 7 อย่าง พร้อมเงื่อนไขตรวจสอบเป้าหมาย
         const HABIT_CONFIGS = [
             {
                 id: 'sleep_hours',
@@ -531,6 +535,19 @@
                 unit: 'กรัม',
                 hint: 'เป้าหมาย: กรอกปริมาณโปรตีน',
                 checkPass: (val) => parseFloat(val) > 0
+            },
+            {
+                id: 'calories',
+                title: 'แคลอรีไม่เกิน 1500 kcal',
+                icon: '🥗',
+                type: 'number',
+                placeholder: 'เช่น 1350',
+                unit: 'kcal',
+                hint: 'เป้าหมาย: ≤ 1500 kcal',
+                checkPass: (val) => {
+                    const num = parseFloat(val);
+                    return !isNaN(num) && num > 0 && num <= 1500;
+                }
             },
             {
                 id: 'sleep_time',
@@ -745,6 +762,8 @@
             let sleepCount = 0;
             let totalWater = 0;
             let waterCount = 0;
+            let totalCalories = 0;
+            let calCount = 0;
 
             const datesInMonth = Object.keys(db)
                 .filter(d => d.startsWith(selectedMonth))
@@ -770,6 +789,11 @@
                     waterCount++;
                 }
 
+                if (day.values?.calories) {
+                    totalCalories += parseFloat(day.values.calories) || 0;
+                    calCount++;
+                }
+
                 const dayPercent = Math.round((passed / HABIT_CONFIGS.length) * 100);
                 sumPercentages += dayPercent;
                 totalDaysLogged++;
@@ -785,7 +809,7 @@
                         </div>
                     </div>
                     <span style="font-weight:600; color:${dayPercent >= 80 ? 'var(--success)' : 'var(--primary)'}">
-                        ${passed}/6 (${dayPercent}%)
+                        ${passed}/${HABIT_CONFIGS.length} (${dayPercent}%)
                     </span>
                 `;
                 historyList.appendChild(item);
@@ -805,6 +829,9 @@
             document.getElementById('stat-avg-water').innerText = waterCount > 0 
                 ? `${(totalWater / waterCount).toFixed(1)} ล.` 
                 : '0 ลิตร';
+            document.getElementById('stat-avg-calories').innerText = calCount > 0 
+                ? `${Math.round(totalCalories / calCount)} kcal` 
+                : '0 kcal';
         }
 
         monthPicker.addEventListener('change', renderMonthly);
