@@ -40,7 +40,7 @@
             color: var(--text-main);
             display: flex;
             justify-content: center;
-            padding: 16px 12px;
+            padding: 20px 14px;
             min-height: 100vh;
         }
 
@@ -84,26 +84,26 @@
             background: var(--card-bg);
             border-radius: 20px;
             box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.05);
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
         header h1 {
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             color: var(--primary);
             text-align: center;
         }
 
         header p {
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             text-align: center;
             margin-top: 2px;
         }
 
-        /* กล่องเลือกเดือน + ปุ่มดาวน์โหลด */
+        /* กล่องเลือกเดือน + ปุ่มดาวน์โหลดในแถวเดียวกัน */
         .month-header-row {
             display: flex;
             align-items: center;
@@ -125,7 +125,7 @@
         .date-picker-box label {
             font-weight: 500;
             color: var(--primary);
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             white-space: nowrap;
         }
 
@@ -140,6 +140,7 @@
             text-align: center;
         }
 
+        /* ปุ่มดาวน์โหลดเฉพาะไอคอน */
         .download-icon-btn {
             display: flex;
             align-items: center;
@@ -157,11 +158,20 @@
             flex-shrink: 0;
         }
 
+        .download-icon-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .download-icon-btn:active {
+            transform: scale(0.95);
+        }
+
         /* Progress Card */
         .progress-box {
             background: #F1F5F9;
             border-radius: 14px;
-            padding: 12px 14px;
+            padding: 14px 16px;
         }
 
         .progress-header {
@@ -191,11 +201,11 @@
         /* รายการ Habit Card */
         .habit-card {
             border: 1.5px solid var(--border);
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 12px 14px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s ease;
         }
 
@@ -245,7 +255,6 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
-            flex-shrink: 0;
         }
 
         .habit-card.passed .custom-checkbox {
@@ -262,55 +271,40 @@
         .input-group-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        /* แก้ไขส่วนของช่องกรอกตัวเลขและหน่วย */
-        .habit-input-row {
-            display: flex;
-            align-items: center;
-            background: #FFFFFF;
-            border-radius: 10px;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
             gap: 6px;
         }
 
-        .habit-card.passed .habit-input-row {
-            background: rgba(255, 255, 255, 0.9);
+        .habit-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
         }
 
         .habit-input-row span.label-span {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            white-space: nowrap;
-            flex-shrink: 0;
+            min-width: 70px;
         }
 
         .habit-input-row input {
             flex: 1;
-            min-width: 0;
             border: none;
             background: transparent;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
             color: var(--text-main);
             outline: none;
             text-align: right;
-            padding-right: 4px;
-        }
-
-        .habit-input-row input::placeholder {
-            color: #94A3B8;
-            font-weight: 400;
         }
 
         .habit-input-row .unit {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            white-space: nowrap;
-            flex-shrink: 0;
-            text-align: left;
+            min-width: 40px;
         }
 
         /* ช่องความรู้สึกวันนี้ */
@@ -384,26 +378,26 @@
         .stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
         }
 
         .stat-box {
             background: #F8FAFC;
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 12px;
+            padding: 14px;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--primary);
             margin: 4px 0;
         }
 
         .stat-label {
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
@@ -419,7 +413,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
+            padding: 10px 14px;
             background: #F8FAFC;
             border-radius: 10px;
             border: 1px solid var(--border);
@@ -438,12 +432,13 @@
 <body>
 
     <div class="container">
+        <!-- แถบสลับหน้า -->
         <div class="tab-bar">
             <button class="tab-btn active" id="tab-daily-btn">📝 บันทึกรายวัน</button>
             <button class="tab-btn" id="tab-monthly-btn">📊 แดชบอร์ดสรุปผล</button>
         </div>
 
-        <!-- หน้าบันทึกรายวัน -->
+        <!-- หน้าที่ 1: บันทึกรายวัน -->
         <div id="page-daily" class="card">
             <header>
                 <h1>Daily Habit Tracker</h1>
@@ -455,6 +450,7 @@
                 <input type="date" id="date-picker">
             </div>
 
+            <!-- สรุปความสำเร็จวันนี้ -->
             <div class="progress-box">
                 <div class="progress-header">
                     <span>เป้าหมายสำเร็จวันนี้</span>
@@ -465,8 +461,10 @@
                 </div>
             </div>
 
+            <!-- รายการเป้าหมาย -->
             <div id="habit-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
 
+            <!-- ช่องความรู้สึกวันนี้ -->
             <div class="mood-section">
                 <label style="font-weight: 500; font-size: 0.95rem;">💭 วันนี้รู้สึกอย่างไรบ้าง?</label>
                 <div class="mood-selector">
@@ -495,13 +493,14 @@
             </div>
         </div>
 
-        <!-- หน้าแดชบอร์ดสรุปผล -->
+        <!-- หน้าที่ 2: แดชบอร์ดสรุปผล -->
         <div id="page-monthly" class="card hidden">
             <header>
                 <h1>Monthly Dashboard</h1>
                 <p>สถิติภาพรวมประจำเดือน</p>
             </header>
 
+            <!-- แถวเลือกเดือน + ปุ่มดาวน์โหลดเฉพาะไอคอน -->
             <div class="month-header-row">
                 <div class="date-picker-box">
                     <label for="month-picker">📅 เลือกเดือน:</label>
@@ -586,10 +585,10 @@
                 title: 'กินโปรตีน',
                 icon: '🥩',
                 inputs: [
-                    { key: 'protein', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 60', unit: 'กรัม' }
+                    { key: 'protein', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 120', unit: 'กรัม' }
                 ],
-                hint: 'เป้าหมาย: กรอกปริมาณโปรตีน',
-                checkPass: (vals) => parseFloat(vals['protein']) > 0
+                hint: 'เป้าหมาย: ≥ 120 กรัม',
+                checkPass: (vals) => parseFloat(vals['protein']) >= 120
             },
             {
                 id: 'calories',
@@ -609,7 +608,7 @@
                 title: 'เข้านอนก่อน 22.00 น.',
                 icon: '🌙',
                 inputs: [
-                    { key: 'sleep_time', label: 'เวลาที่นอน', type: 'time', placeholder: '', unit: '' }
+                    { key: 'sleep_time', label: 'เวลาที่นอน', type: 'time', placeholder: '', unit: 'เวลา' }
                 ],
                 hint: 'เป้าหมาย: ก่อนหรือตรง 22:00',
                 checkPass: (vals) => {
@@ -624,7 +623,7 @@
                 title: 'ตื่น 05.00 น.',
                 icon: '⏰',
                 inputs: [
-                    { key: 'wake_time', label: 'เวลาที่ตื่น', type: 'time', placeholder: '', unit: '' }
+                    { key: 'wake_time', label: 'เวลาที่ตื่น', type: 'time', placeholder: '', unit: 'เวลา' }
                 ],
                 hint: 'เป้าหมาย: ไม่เกิน 05:00 น.',
                 checkPass: (vals) => {
@@ -717,7 +716,7 @@
                                    data-key="${inp.key}" 
                                    value="${val}" 
                                    placeholder="${inp.placeholder}">
-                            ${inp.unit ? `<span class="unit">${inp.unit}</span>` : ''}
+                            <span class="unit">${inp.unit}</span>
                         </div>
                     `;
                 });
