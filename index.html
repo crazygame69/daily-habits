@@ -111,6 +111,8 @@
             background: var(--primary-light);
             padding: 10px 14px;
             border-radius: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .date-picker-box label {
@@ -127,6 +129,28 @@
             color: var(--primary);
             outline: none;
             cursor: pointer;
+        }
+
+        /* ปุ่มดาวน์โหลดไฟล์ */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .download-btn:hover {
+            background: #4338CA;
+            transform: translateY(-1px);
         }
 
         /* Progress Card */
@@ -231,6 +255,12 @@
         }
 
         /* Input ภายใน Habit */
+        .input-group-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         .habit-input-row {
             display: flex;
             align-items: center;
@@ -241,9 +271,10 @@
             border: 1px solid var(--border);
         }
 
-        .habit-input-row span {
+        .habit-input-row span.label-span {
             font-size: 0.8rem;
             color: var(--text-muted);
+            min-width: 75px;
         }
 
         .habit-input-row input {
@@ -459,8 +490,13 @@
             </header>
 
             <div class="date-picker-box">
-                <label for="month-picker">📅 เลือกเดือน:</label>
-                <input type="month" id="month-picker">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label for="month-picker">📅 เลือกเดือน:</label>
+                    <input type="month" id="month-picker">
+                </div>
+                <button class="download-btn" id="export-csv-btn">
+                    📥 ดาวน์โหลดสรุปไฟล์ (Excel/CSV)
+                </button>
             </div>
 
             <div class="stat-grid">
@@ -480,8 +516,12 @@
                     <div class="stat-label">ดื่มน้ำเฉลี่ย</div>
                     <div class="stat-value" id="stat-avg-water">0 ลิตร</div>
                 </div>
-                <div class="stat-box" style="grid-column: span 2;">
-                    <div class="stat-label">แคลอรีเฉลี่ยต่อวัน</div>
+                <div class="stat-box">
+                    <div class="stat-label">ก้าวเดินเฉลี่ย</div>
+                    <div class="stat-value" id="stat-avg-steps">0 ก้าว</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">แคลอรีเฉลี่ย</div>
                     <div class="stat-value" id="stat-avg-calories">0 kcal</div>
                 </div>
             </div>
@@ -494,58 +534,63 @@
     </div>
 
     <script>
-        // โครงสร้างนิสัย 7 อย่าง พร้อมเงื่อนไขตรวจสอบเป้าหมาย
+        // กำหนดรายการเป้าหมาย 7 หมวดหลัก
         const HABIT_CONFIGS = [
             {
                 id: 'sleep_hours',
                 title: 'นอนครบ 8 ชั่วโมง',
                 icon: '😴',
-                type: 'number',
-                placeholder: 'เช่น 7.5',
-                unit: 'ชม.',
+                inputs: [
+                    { key: 'sleep_hours', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 7.5', unit: 'ชม.' }
+                ],
                 hint: 'เป้าหมาย: ≥ 8 ชม.',
-                checkPass: (val) => parseFloat(val) >= 8
+                checkPass: (vals) => parseFloat(vals['sleep_hours']) >= 8
             },
             {
                 id: 'water',
                 title: 'ดื่มน้ำ 2 ลิตร',
                 icon: '💧',
-                type: 'number',
-                placeholder: 'เช่น 2.2',
-                unit: 'ลิตร',
+                inputs: [
+                    { key: 'water', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 2.2', unit: 'ลิตร' }
+                ],
                 hint: 'เป้าหมาย: ≥ 2 ลิตร',
-                checkPass: (val) => parseFloat(val) >= 2
+                checkPass: (vals) => parseFloat(vals['water']) >= 2
             },
             {
-                id: 'workout',
-                title: 'ออกกำลังกาย',
+                id: 'exercise_group',
+                title: 'ออกกำลังกาย / เดิน',
                 icon: '🏃',
-                type: 'number',
-                placeholder: 'เช่น 30',
-                unit: 'นาที',
-                hint: 'เป้าหมาย: ≥ 20 นาที หรือติ๊กผ่าน',
-                checkPass: (val) => parseFloat(val) >= 20
+                inputs: [
+                    { key: 'workout_mins', label: 'ออกกำลังกาย', type: 'number', placeholder: 'เช่น 30', unit: 'นาที' },
+                    { key: 'walk_steps', label: 'เดิน (ก้าว)', type: 'number', placeholder: 'เช่น 6500', unit: 'ก้าว' }
+                ],
+                hint: 'เป้าหมาย: ออกกำลังกาย ≥ 20 นาที หรือ เดิน ≥ 6,000 ก้าว',
+                checkPass: (vals) => {
+                    const workout = parseFloat(vals['workout_mins']) || 0;
+                    const steps = parseFloat(vals['walk_steps']) || 0;
+                    return workout >= 20 || steps >= 6000;
+                }
             },
             {
                 id: 'protein',
                 title: 'กินโปรตีน',
                 icon: '🥩',
-                type: 'number',
-                placeholder: 'เช่น 60',
-                unit: 'กรัม',
+                inputs: [
+                    { key: 'protein', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 60', unit: 'กรัม' }
+                ],
                 hint: 'เป้าหมาย: กรอกปริมาณโปรตีน',
-                checkPass: (val) => parseFloat(val) > 0
+                checkPass: (vals) => parseFloat(vals['protein']) > 0
             },
             {
                 id: 'calories',
-                title: 'แคลอรี 1500 kcal',
+                title: 'แคลอรีไม่เกิน 1500 kcal',
                 icon: '🥗',
-                type: 'number',
-                placeholder: 'เช่น 1350',
-                unit: 'kcal',
+                inputs: [
+                    { key: 'calories', label: 'บันทึกจริง', type: 'number', placeholder: 'เช่น 1350', unit: 'kcal' }
+                ],
                 hint: 'เป้าหมาย: ≤ 1500 kcal',
-                checkPass: (val) => {
-                    const num = parseFloat(val);
+                checkPass: (vals) => {
+                    const num = parseFloat(vals['calories']);
                     return !isNaN(num) && num > 0 && num <= 1500;
                 }
             },
@@ -553,11 +598,12 @@
                 id: 'sleep_time',
                 title: 'เข้านอนก่อน 22.00 น.',
                 icon: '🌙',
-                type: 'time',
-                placeholder: '',
-                unit: 'เวลา',
+                inputs: [
+                    { key: 'sleep_time', label: 'เวลาที่นอน', type: 'time', placeholder: '', unit: 'เวลา' }
+                ],
                 hint: 'เป้าหมาย: ก่อนหรือตรง 22:00',
-                checkPass: (val) => {
+                checkPass: (vals) => {
+                    const val = vals['sleep_time'];
                     if (!val) return false;
                     const [h, m] = val.split(':').map(Number);
                     return (h >= 18 && h < 22) || (h === 22 && m === 0);
@@ -567,11 +613,12 @@
                 id: 'wake_time',
                 title: 'ตื่น 05.00 น.',
                 icon: '⏰',
-                type: 'time',
-                placeholder: '',
-                unit: 'เวลา',
+                inputs: [
+                    { key: 'wake_time', label: 'เวลาที่ตื่น', type: 'time', placeholder: '', unit: 'เวลา' }
+                ],
                 hint: 'เป้าหมาย: ไม่เกิน 05:00 น.',
-                checkPass: (val) => {
+                checkPass: (vals) => {
+                    const val = vals['wake_time'];
                     if (!val) return false;
                     const [h, m] = val.split(':').map(Number);
                     return (h >= 3 && h < 5) || (h === 5 && m === 0);
@@ -587,18 +634,17 @@
         const dailyProgressFill = document.getElementById('daily-progress-fill');
         const dailyNote = document.getElementById('daily-note');
         const moodBtns = document.querySelectorAll('.mood-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
 
         const tabDailyBtn = document.getElementById('tab-daily-btn');
         const tabMonthlyBtn = document.getElementById('tab-monthly-btn');
         const pageDaily = document.getElementById('page-daily');
         const pageMonthly = document.getElementById('page-monthly');
 
-        // ตั้งค่าวันปัจจุบัน (YYYY-MM-DD)
         const todayStr = new Date().toLocaleDateString('en-CA');
         datePicker.value = todayStr;
         monthPicker.value = todayStr.substring(0, 7);
 
-        // LocalStorage Helpers
         function getDB() {
             return JSON.parse(localStorage.getItem('habit_tracker_db') || '{}');
         }
@@ -644,15 +690,32 @@
             let passCount = 0;
 
             HABIT_CONFIGS.forEach(cfg => {
-                const val = data.values?.[cfg.id] || '';
                 const manualCheck = !!data.manualChecks?.[cfg.id];
-                const autoPass = cfg.checkPass(val);
+                const autoPass = cfg.checkPass(data.values || {});
                 const isPassed = autoPass || manualCheck;
 
                 if (isPassed) passCount++;
 
                 const card = document.createElement('div');
                 card.className = `habit-card ${isPassed ? 'passed' : ''}`;
+                card.dataset.habitId = cfg.id;
+
+                let inputsHtml = '<div class="input-group-container">';
+                cfg.inputs.forEach(inp => {
+                    const val = data.values?.[inp.key] || '';
+                    inputsHtml += `
+                        <div class="habit-input-row">
+                            <span class="label-span">${inp.label}:</span>
+                            <input type="${inp.type}" 
+                                   data-key="${inp.key}" 
+                                   value="${val}" 
+                                   placeholder="${inp.placeholder}">
+                            <span class="unit">${inp.unit}</span>
+                        </div>
+                    `;
+                });
+                inputsHtml += '</div>';
+
                 card.innerHTML = `
                     <div class="habit-header">
                         <div class="habit-info">
@@ -664,14 +727,7 @@
                         </div>
                         <div class="custom-checkbox" data-id="${cfg.id}"></div>
                     </div>
-                    <div class="habit-input-row">
-                        <span>บันทึกจริง:</span>
-                        <input type="${cfg.type}" 
-                               data-id="${cfg.id}" 
-                               value="${val}" 
-                               placeholder="${cfg.placeholder}">
-                        <span class="unit">${cfg.unit}</span>
-                    </div>
+                    ${inputsHtml}
                 `;
 
                 // ติ๊ก Checkbox
@@ -685,17 +741,19 @@
                 });
 
                 // กรอกข้อมูล Input
-                const inp = card.querySelector('input');
-                inp.addEventListener('input', (e) => {
-                    const current = getDayData(curDate);
-                    current.values = current.values || {};
-                    current.values[cfg.id] = e.target.value;
-                    updateDayData(curDate, current);
-                    
-                    const isNowPassed = cfg.checkPass(e.target.value) || !!current.manualChecks?.[cfg.id];
-                    if (isNowPassed) card.classList.add('passed');
-                    else card.classList.remove('passed');
-                    updateDailyProgress();
+                const inputs = card.querySelectorAll('input');
+                inputs.forEach(inpElement => {
+                    inpElement.addEventListener('input', (e) => {
+                        const current = getDayData(curDate);
+                        current.values = current.values || {};
+                        current.values[e.target.dataset.key] = e.target.value;
+                        updateDayData(curDate, current);
+                        
+                        const isNowPassed = cfg.checkPass(current.values) || !!current.manualChecks?.[cfg.id];
+                        if (isNowPassed) card.classList.add('passed');
+                        else card.classList.remove('passed');
+                        updateDailyProgress();
+                    });
                 });
 
                 habitContainer.appendChild(card);
@@ -719,9 +777,8 @@
             let passCount = 0;
 
             HABIT_CONFIGS.forEach(cfg => {
-                const val = data.values?.[cfg.id] || '';
                 const manual = !!data.manualChecks?.[cfg.id];
-                if (cfg.checkPass(val) || manual) passCount++;
+                if (cfg.checkPass(data.values || {}) || manual) passCount++;
             });
 
             const percent = Math.round((passCount / HABIT_CONFIGS.length) * 100);
@@ -762,6 +819,8 @@
             let sleepCount = 0;
             let totalWater = 0;
             let waterCount = 0;
+            let totalSteps = 0;
+            let stepsCount = 0;
             let totalCalories = 0;
             let calCount = 0;
 
@@ -774,9 +833,8 @@
                 let passed = 0;
 
                 HABIT_CONFIGS.forEach(cfg => {
-                    const val = day.values?.[cfg.id];
                     const manual = day.manualChecks?.[cfg.id];
-                    if (cfg.checkPass(val) || manual) passed++;
+                    if (cfg.checkPass(day.values || {}) || manual) passed++;
                 });
 
                 if (day.values?.sleep_hours) {
@@ -787,6 +845,11 @@
                 if (day.values?.water) {
                     totalWater += parseFloat(day.values.water) || 0;
                     waterCount++;
+                }
+
+                if (day.values?.walk_steps) {
+                    totalSteps += parseFloat(day.values.walk_steps) || 0;
+                    stepsCount++;
                 }
 
                 if (day.values?.calories) {
@@ -829,10 +892,90 @@
             document.getElementById('stat-avg-water').innerText = waterCount > 0 
                 ? `${(totalWater / waterCount).toFixed(1)} ล.` 
                 : '0 ลิตร';
+            document.getElementById('stat-avg-steps').innerText = stepsCount > 0 
+                ? `${Math.round(totalSteps / stepsCount).toLocaleString()} ก้าว` 
+                : '0 ก้าว';
             document.getElementById('stat-avg-calories').innerText = calCount > 0 
                 ? `${Math.round(totalCalories / calCount)} kcal` 
                 : '0 kcal';
         }
+
+        // ฟังก์ชันดาวน์โหลดรายงานเป็นไฟล์ CSV (เปิดใน Excel ได้ทันที)
+        exportCsvBtn.addEventListener('click', () => {
+            const selectedMonth = monthPicker.value;
+            const db = getDB();
+
+            const datesInMonth = Object.keys(db)
+                .filter(d => d.startsWith(selectedMonth))
+                .sort((a, b) => a.localeCompare(b)); // เรียงจากวันที่ 1 ไปสิ้นเดือน
+
+            if (datesInMonth.length === 0) {
+                alert('ไม่พบข้อมูลบันทึกในเดือน ' + selectedMonth + ' ครับ');
+                return;
+            }
+
+            // หัวตาราง CSV
+            const headers = [
+                'วันที่',
+                'เป้าหมายที่สำเร็จ',
+                'คิดเป็นเปอร์เซ็นต์',
+                'นอนหลับ (ชม.)',
+                'ดื่มน้ำ (ลิตร)',
+                'ออกกำลังกาย (นาที)',
+                'เดิน (ก้าว)',
+                'โปรตีน (กรัม)',
+                'แคลอรี (kcal)',
+                'เวลานอนจริง',
+                'เวลาตื่นจริง',
+                'อารมณ์',
+                'บันทึกความรู้สึก'
+            ];
+
+            const rows = [headers];
+
+            datesInMonth.forEach(dateStr => {
+                const day = db[dateStr];
+                const vals = day.values || {};
+                let passed = 0;
+
+                HABIT_CONFIGS.forEach(cfg => {
+                    const manual = day.manualChecks?.[cfg.id];
+                    if (cfg.checkPass(vals) || manual) passed++;
+                });
+
+                const percent = Math.round((passed / HABIT_CONFIGS.length) * 100) + '%';
+                const noteClean = (day.note || '').replace(/"/g, '""'); // ป้องกันเครื่องหมายคำพูดเพี้ยน
+
+                rows.push([
+                    dateStr,
+                    `${passed}/${HABIT_CONFIGS.length}`,
+                    percent,
+                    vals.sleep_hours || '0',
+                    vals.water || '0',
+                    vals.workout_mins || '0',
+                    vals.walk_steps || '0',
+                    vals.protein || '0',
+                    vals.calories || '0',
+                    vals.sleep_time || '-',
+                    vals.wake_time || '-',
+                    day.mood || '-',
+                    `"${noteClean}"`
+                ]);
+            });
+
+            // ประกอบข้อความ CSV พร้อมใส่ UTF-8 BOM (\uFEFF) เพื่อให้ Excel อ่านภาษาไทยออกไม่เป็นภาษาต่างดาว
+            const csvContent = '\uFEFF' + rows.map(e => e.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `habit-summary-${selectedMonth}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
 
         monthPicker.addEventListener('change', renderMonthly);
 
