@@ -103,22 +103,22 @@
             margin-top: 2px;
         }
 
-        /* ส่วนเลือกวันที่ */
+        /* ส่วนเลือกวันที่รายวัน */
         .date-picker-box {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 10px;
             background: var(--primary-light);
             padding: 10px 14px;
             border-radius: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
+            width: 100%;
         }
 
         .date-picker-box label {
             font-weight: 500;
             color: var(--primary);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .date-picker-box input {
@@ -129,28 +129,74 @@
             color: var(--primary);
             outline: none;
             cursor: pointer;
+            text-align: center;
         }
 
-        /* ปุ่มดาวน์โหลดไฟล์ */
+        /* แถวเครื่องมือเดือน + ปุ่มดาวน์โหลด อยู่บรรทัดเดียวกัน */
+        .month-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .month-select-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--primary-light);
+            padding: 9px 12px;
+            border-radius: 12px;
+            min-width: 0;
+        }
+
+        .month-select-wrapper label {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .month-select-wrapper input {
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 125px;
+        }
+
         .download-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             background: var(--primary);
-            color: white;
+            color: #ffffff;
             border: none;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.88rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+            flex-shrink: 0;
         }
 
         .download-btn:hover {
-            background: #4338CA;
+            opacity: 0.92;
             transform: translateY(-1px);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
         }
 
         /* Progress Card */
@@ -274,7 +320,7 @@
         .habit-input-row span.label-span {
             font-size: 0.8rem;
             color: var(--text-muted);
-            min-width: 75px;
+            min-width: 70px;
         }
 
         .habit-input-row input {
@@ -448,10 +494,8 @@
                 </div>
             </div>
 
-            <!-- รายการเป้าหมาย 7 ข้อ -->
-            <div id="habit-container" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- Habit รายการจะถูกแทรกที่นี่ -->
-            </div>
+            <!-- รายการเป้าหมาย -->
+            <div id="habit-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
 
             <!-- ช่องความรู้สึกวันนี้ -->
             <div class="mood-section">
@@ -489,13 +533,14 @@
                 <p>สถิติภาพรวมประจำเดือน</p>
             </header>
 
-            <div class="date-picker-box">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label for="month-picker">📅 เลือกเดือน:</label>
+            <!-- แถบเลือกเดือน + ปุ่มดาวน์โหลด อยู่ในบรรทัดเดียวกัน -->
+            <div class="month-toolbar">
+                <div class="month-select-wrapper">
+                    <label for="month-picker">📅 เดือน:</label>
                     <input type="month" id="month-picker">
                 </div>
-                <button class="download-btn" id="export-csv-btn">
-                    📥 ดาวน์โหลดสรุปไฟล์ (Excel/CSV)
+                <button class="download-btn" id="download-csv-btn">
+                    <span>📥</span> ดาวน์โหลด (Excel/CSV)
                 </button>
             </div>
 
@@ -527,14 +572,11 @@
             </div>
 
             <h3 style="font-size: 1rem; font-weight: 500; margin-top: 4px;">ประวัติรายวันในเดือนนี้</h3>
-            <div class="history-list" id="history-list">
-                <!-- ข้อมูลรายวันจะแสดงที่นี่ -->
-            </div>
+            <div class="history-list" id="history-list"></div>
         </div>
     </div>
 
     <script>
-        // กำหนดรายการเป้าหมาย 7 หมวดหลัก
         const HABIT_CONFIGS = [
             {
                 id: 'sleep_hours',
@@ -626,7 +668,6 @@
             }
         ];
 
-        // องค์ประกอบ DOM
         const datePicker = document.getElementById('date-picker');
         const monthPicker = document.getElementById('month-picker');
         const habitContainer = document.getElementById('habit-container');
@@ -634,7 +675,7 @@
         const dailyProgressFill = document.getElementById('daily-progress-fill');
         const dailyNote = document.getElementById('daily-note');
         const moodBtns = document.querySelectorAll('.mood-btn');
-        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const downloadCsvBtn = document.getElementById('download-csv-btn');
 
         const tabDailyBtn = document.getElementById('tab-daily-btn');
         const tabMonthlyBtn = document.getElementById('tab-monthly-btn');
@@ -664,7 +705,6 @@
             saveDB(db);
         }
 
-        // แท็บสลับหน้า
         tabDailyBtn.addEventListener('click', () => {
             tabDailyBtn.classList.add('active');
             tabMonthlyBtn.classList.remove('active');
@@ -681,7 +721,6 @@
             renderMonthly();
         });
 
-        // เรนเดอร์หน้ารายวัน
         function renderDaily() {
             const curDate = datePicker.value;
             const data = getDayData(curDate);
@@ -730,7 +769,6 @@
                     ${inputsHtml}
                 `;
 
-                // ติ๊ก Checkbox
                 const chk = card.querySelector('.custom-checkbox');
                 chk.addEventListener('click', () => {
                     const current = getDayData(curDate);
@@ -740,7 +778,6 @@
                     renderDaily();
                 });
 
-                // กรอกข้อมูล Input
                 const inputs = card.querySelectorAll('input');
                 inputs.forEach(inpElement => {
                     inpElement.addEventListener('input', (e) => {
@@ -806,7 +843,6 @@
             updateDayData(curDate, current);
         });
 
-        // เรนเดอร์แดชบอร์ดรายเดือน
         function renderMonthly() {
             const selectedMonth = monthPicker.value;
             const db = getDB();
@@ -900,40 +936,34 @@
                 : '0 kcal';
         }
 
-        // ฟังก์ชันดาวน์โหลดรายงานเป็นไฟล์ CSV (เปิดใน Excel ได้ทันที)
-        exportCsvBtn.addEventListener('click', () => {
+        downloadCsvBtn.addEventListener('click', () => {
             const selectedMonth = monthPicker.value;
             const db = getDB();
-
             const datesInMonth = Object.keys(db)
                 .filter(d => d.startsWith(selectedMonth))
-                .sort((a, b) => a.localeCompare(b)); // เรียงจากวันที่ 1 ไปสิ้นเดือน
+                .sort((a, b) => a.localeCompare(b));
 
             if (datesInMonth.length === 0) {
-                alert('ไม่พบข้อมูลบันทึกในเดือน ' + selectedMonth + ' ครับ');
+                alert('ไม่มีข้อมูลที่บันทึกไว้ในเดือนนี้ครับ');
                 return;
             }
 
-            // หัวตาราง CSV
             const headers = [
                 'วันที่',
-                'เป้าหมายที่สำเร็จ',
-                'คิดเป็นเปอร์เซ็นต์',
-                'นอนหลับ (ชม.)',
-                'ดื่มน้ำ (ลิตร)',
-                'ออกกำลังกาย (นาที)',
-                'เดิน (ก้าว)',
-                'โปรตีน (กรัม)',
-                'แคลอรี (kcal)',
-                'เวลานอนจริง',
-                'เวลาตื่นจริง',
+                'ความสำเร็จ(%)',
+                'นอน(ชม.)',
+                'น้ำ(ลิตร)',
+                'ออกกำลังกาย(นาที)',
+                'เดิน(ก้าว)',
+                'โปรตีน(กรัม)',
+                'แคลอรี(kcal)',
+                'เวลานอน',
+                'เวลาตื่น',
                 'อารมณ์',
-                'บันทึกความรู้สึก'
+                'บันทึก'
             ];
 
-            const rows = [headers];
-
-            datesInMonth.forEach(dateStr => {
+            const rows = datesInMonth.map(dateStr => {
                 const day = db[dateStr];
                 const vals = day.values || {};
                 let passed = 0;
@@ -943,37 +973,34 @@
                     if (cfg.checkPass(vals) || manual) passed++;
                 });
 
-                const percent = Math.round((passed / HABIT_CONFIGS.length) * 100) + '%';
-                const noteClean = (day.note || '').replace(/"/g, '""'); // ป้องกันเครื่องหมายคำพูดเพี้ยน
+                const percent = Math.round((passed / HABIT_CONFIGS.length) * 100);
+                const escapeField = (text) => `"${(text || '').toString().replace(/"/g, '""')}"`;
 
-                rows.push([
+                return [
                     dateStr,
-                    `${passed}/${HABIT_CONFIGS.length}`,
-                    percent,
-                    vals.sleep_hours || '0',
-                    vals.water || '0',
-                    vals.workout_mins || '0',
-                    vals.walk_steps || '0',
-                    vals.protein || '0',
-                    vals.calories || '0',
-                    vals.sleep_time || '-',
-                    vals.wake_time || '-',
-                    day.mood || '-',
-                    `"${noteClean}"`
-                ]);
+                    `${percent}%`,
+                    vals.sleep_hours || '',
+                    vals.water || '',
+                    vals.workout_mins || '',
+                    vals.walk_steps || '',
+                    vals.protein || '',
+                    vals.calories || '',
+                    vals.sleep_time || '',
+                    vals.wake_time || '',
+                    escapeField(day.mood || ''),
+                    escapeField(day.note || '')
+                ].join(',');
             });
 
-            // ประกอบข้อความ CSV พร้อมใส่ UTF-8 BOM (\uFEFF) เพื่อให้ Excel อ่านภาษาไทยออกไม่เป็นภาษาต่างดาว
-            const csvContent = '\uFEFF' + rows.map(e => e.join(',')).join('\n');
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `habit-summary-${selectedMonth}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Habit_Report_${selectedMonth}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
 
