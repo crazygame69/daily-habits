@@ -273,7 +273,7 @@
             gap: 6px;
         }
 
-        /* แก้ไขไม่ให้หน่วยและข้อความตกเฟรม */
+        /* แก้ไขส่วน input-row: ไม่ให้ข้อความตัดบรรทัด และไม่ให้หน่วยตกขอบ */
         .habit-input-row {
             display: flex;
             align-items: center;
@@ -288,13 +288,13 @@
         .habit-input-row span.label-span {
             font-size: 0.82rem;
             color: var(--text-muted);
-            white-space: nowrap;
+            white-space: nowrap; /* ไม่ให้คำว่า ออกกำลังกาย ตัดขึ้นบรรทัดใหม่ */
             flex-shrink: 0;
         }
 
         .habit-input-row input {
             flex: 1;
-            min-width: 0;
+            min-width: 0; /* สำคัญมาก: ป้องกันไม่ให้ input ขยายตัวดันจนหน่วยตกขอบ */
             border: none;
             background: transparent;
             font-size: 0.92rem;
@@ -308,7 +308,7 @@
         .habit-input-row .unit {
             font-size: 0.82rem;
             color: var(--text-muted);
-            white-space: nowrap;
+            white-space: nowrap; /* หน่วยไม่ตกบรรทัด */
             flex-shrink: 0;
             text-align: right;
         }
@@ -506,7 +506,7 @@
                 <p>สถิติภาพรวมประจำเดือน</p>
             </header>
 
-            <!-- แถวเลือกเดือน + ปุ่มดาวน์โหลด -->
+            <!-- แถวเลือกเดือน + ปุ่มดาวน์โหลดเฉพาะไอคอน -->
             <div class="month-header-row">
                 <div class="date-picker-box">
                     <label for="month-picker">📅 เลือกเดือน:</label>
@@ -576,8 +576,8 @@
                 title: 'ออกกำลังกาย / เดิน',
                 icon: '🏃',
                 inputs: [
-                    { key: 'workout_mins', label: 'ออกกำลัง', type: 'number', placeholder: 'เช่น 30', unit: 'นาที' },
-                    { key: 'walk_steps', label: 'เดิน', type: 'number', placeholder: 'เช่น 6500', unit: 'ก้าว' }
+                    { key: 'workout_mins', label: 'ออกกำลังกาย', type: 'number', placeholder: 'เช่น 30', unit: 'นาที' },
+                    { key: 'walk_steps', label: 'เดิน (ก้าว)', type: 'number', placeholder: 'เช่น 6500', unit: 'ก้าว' }
                 ],
                 hint: 'เป้าหมาย: ออกกำลังกาย ≥ 20 นาที หรือ เดิน ≥ 6,000 ก้าว',
                 checkPass: (vals) => {
