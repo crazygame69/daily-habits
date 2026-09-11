@@ -103,22 +103,30 @@
             margin-top: 2px;
         }
 
-        /* ส่วนเลือกวันที่รายวัน */
+        /* กล่องเลือกเดือน + ปุ่มดาวน์โหลดในแถวเดียวกัน */
+        .month-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
         .date-picker-box {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             background: var(--primary-light);
             padding: 10px 14px;
             border-radius: 12px;
-            width: 100%;
+            flex: 1;
         }
 
         .date-picker-box label {
             font-weight: 500;
             color: var(--primary);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
+            white-space: nowrap;
         }
 
         .date-picker-box input {
@@ -132,71 +140,31 @@
             text-align: center;
         }
 
-        /* แถวเครื่องมือเดือน + ปุ่มดาวน์โหลด อยู่บรรทัดเดียวกัน */
-        .month-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .month-select-wrapper {
-            flex: 1;
+        /* ปุ่มดาวน์โหลดเฉพาะไอคอน ไม่กินพื้นที่ */
+        .download-icon-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            background: var(--primary-light);
-            padding: 9px 12px;
-            border-radius: 12px;
-            min-width: 0;
-        }
-
-        .month-select-wrapper label {
-            font-weight: 500;
-            color: var(--primary);
-            font-size: 0.88rem;
-            white-space: nowrap;
-        }
-
-        .month-select-wrapper input {
-            border: none;
-            background: transparent;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--primary);
-            outline: none;
-            cursor: pointer;
-            width: 100%;
-            max-width: 125px;
-        }
-
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            width: 44px;
+            height: 44px;
             background: var(--primary);
             color: #ffffff;
             border: none;
             border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 0.88rem;
-            font-weight: 500;
+            font-size: 1.15rem;
             cursor: pointer;
-            white-space: nowrap;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
             flex-shrink: 0;
         }
 
-        .download-btn:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
+        .download-icon-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
         }
 
-        .download-btn:active {
-            transform: translateY(0);
+        .download-icon-btn:active {
+            transform: scale(0.95);
         }
 
         /* Progress Card */
@@ -300,7 +268,6 @@
             content: '✔';
         }
 
-        /* Input ภายใน Habit */
         .input-group-container {
             display: flex;
             flex-direction: column;
@@ -533,14 +500,14 @@
                 <p>สถิติภาพรวมประจำเดือน</p>
             </header>
 
-            <!-- แถบเลือกเดือน + ปุ่มดาวน์โหลด อยู่ในบรรทัดเดียวกัน -->
-            <div class="month-toolbar">
-                <div class="month-select-wrapper">
-                    <label for="month-picker">📅 เดือน:</label>
+            <!-- แถวเลือกเดือน + ปุ่มดาวน์โหลดเฉพาะไอคอน (กะทัดรัด ประหยัดพื้นที่) -->
+            <div class="month-header-row">
+                <div class="date-picker-box">
+                    <label for="month-picker">📅 เลือกเดือน:</label>
                     <input type="month" id="month-picker">
                 </div>
-                <button class="download-btn" id="download-csv-btn">
-                    <span>📥</span> ดาวน์โหลด (Excel/CSV)
+                <button class="download-icon-btn" id="download-csv-btn" title="ดาวน์โหลดไฟล์สรุป (Excel/CSV)">
+                    📥
                 </button>
             </div>
 
@@ -1001,7 +968,7 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(blob);
         });
 
         monthPicker.addEventListener('change', renderMonthly);
